@@ -14,12 +14,14 @@ print(covid_c.nlargest(10))
 # visualizing through bar chart
 ax = covid_c.nlargest(10).plot.bar(rot=20, color=["powderblue", "cadetblue"])
 plt.ylabel('total vaccinations per hundred')
+plt.title('Top 10 entities with max total vaccinations')
 plt.show()
 
 # maximum values of total number of cases and deaths by country
 df = pd.read_csv('csvs\cases_deaths.csv')
 # i need only three columns without NaN values
-temp = df[['Country', 'Total confirmed deaths due to COVID-19', 'Total confirmed cases of COVID-19']].dropna()
+temp = df[['Country', 'Total confirmed deaths due to COVID-19',
+           'Total confirmed cases of COVID-19']].dropna()
 # or I can fill NaNs with mean value of a particular country
 # for key, group in cases_deaths:
 #     print(key)
@@ -35,22 +37,25 @@ cases_deaths = cases_deaths.nlargest(10, ['Cases', 'Deaths'])
 cases_deaths['Deaths'] = cases_deaths['Deaths'] // 100
 print(cases_deaths)
 # creating a bar chart with two bars for each country
-cases_deaths.plot.bar(rot=10)
+cases_deaths.plot.bar(rot=10, color=["lightpink", "lightblue"])
 plt.ylabel('Cases and Deaths (divided by a 100)')
+plt.title('Total number of cases and deaths by country')
 plt.show()
 
 # top 10 entities with the largest number of deaths during covid
 df = pd.read_csv('csvs\daily-covid-deaths-region.csv')
 df = df.rename(columns={'Day': 'Date',
-                        'Daily new confirmed deaths due to COVID-19 (rolling 7-day average, right-aligned)': 'Deaths'})
+                        'Daily new confirmed deaths due to COVID-19 '
+                        '(rolling 7-day average, right-aligned)': 'Deaths'})
 df.set_index(df.Date, inplace=True)
 df.drop(['Date'], axis=1, inplace=True)
 df = df.groupby(['Code'])["Deaths"].sum()
 print(df.nlargest(10))
 # visualizing through bar chart
-ax = df.nlargest(10).plot.bar(rot=0, color=["powderblue", "cadetblue"])
+ax = df.nlargest(10).plot.bar(rot=0, color=["gold", "khaki"])
 plt.ylabel('deaths during covid')
 plt.xlabel('entities (their codes)')
+plt.title('Top 10 entities with max deaths')
 plt.show()
 
 # maximum number of school closures in different countries
@@ -86,14 +91,16 @@ m.save("school_closures.html")
 # hospitalized in different countries due to covid
 df = pd.read_csv('csvs/current-covid-patients-hospital.csv')
 df = df.groupby('Entity')
-marker_map = folium.Map(location=[35.762887375145795, 84.08313219586536], zoom_start=2, tiles='openstreetmap')
+marker_map = folium.Map(location=[35.762887375145795, 84.08313219586536],
+                        zoom_start=2, tiles='openstreetmap')
 # json with latitude and longitude of all countries
 geo_path = "csvs/countries-lat-long.json"
 json_data = json.load(open(geo_path))
 geo_data = pd.DataFrame(columns=['country', 'latitude', 'longitude'])
 for country in df.Entity:
     # find location for each country in the csv
-    temp = [[tag['country'], tag['latitude'], tag['longitude']] for tag in json_data['ref_country_codes'] if country[0] in tag['country']]
+    temp = [[tag['country'], tag['latitude'], tag['longitude']]
+            for tag in json_data['ref_country_codes'] if country[0] in tag['country']]
     if len(temp) > 0:
         geo_data.loc[len(geo_data)] = temp[0]
 for key, group in df:
